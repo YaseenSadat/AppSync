@@ -8,16 +8,33 @@
 import Foundation
 import FirebaseFirestore
 
-/// A public struct so the main app can use it
+/// A model representing a note within the AppSync application.
+///
+/// The `Note` struct conforms to `Identifiable` for easy use in SwiftUI lists and includes methods for
+/// initialization from Firestore documents as well as conversion to a Firestore-compatible dictionary.
 public struct Note: Identifiable {
-    /// Public properties to be accessed from outside the package
+    // MARK: - Public Properties
+    
+    /// A unique identifier for the note.
     public let id: String
+    /// The title of the note.
     public let title: String
+    /// The content of the note.
     public let content: String
+    /// The timestamp indicating when the note was created or last updated.
     public let timestamp: Date
 
     // MARK: - Primary Initializer
-    /// Public initializer if the main app needs to create notes directly
+    
+    /// Creates a new `Note` instance.
+    ///
+    /// Use this initializer when creating notes directly within the app.
+    ///
+    /// - Parameters:
+    ///   - id: A unique identifier for the note.
+    ///   - title: The title of the note.
+    ///   - content: The content of the note.
+    ///   - timestamp: The creation or update time for the note. Defaults to the current date.
     public init(id: String, title: String, content: String, timestamp: Date = Date()) {
         self.id = id
         self.title = title
@@ -26,7 +43,15 @@ public struct Note: Identifiable {
     }
 
     // MARK: - Firestore Snapshot Initializer
-    /// Public failable initializer to parse a Firestore document
+    
+    /// Initializes a `Note` from a Firestore document.
+    ///
+    /// Use this failable initializer to parse a Firestore document into a `Note` instance.
+    ///
+    /// - Parameters:
+    ///   - document: A dictionary representing the Firestore document.
+    ///   - documentID: The unique identifier of the document.
+    /// - Returns: An optional `Note` if the document contains valid data; otherwise, `nil`.
     public init?(document: [String: Any], documentID: String) {
         guard let title = document["title"] as? String,
               let content = document["content"] as? String,
@@ -41,7 +66,10 @@ public struct Note: Identifiable {
     }
 
     // MARK: - Convert to Firestore Dictionary
-    /// Public method to convert a Note into a dictionary for Firestore
+    
+    /// Converts the `Note` instance into a dictionary suitable for storing in Firestore.
+    ///
+    /// - Returns: A dictionary containing the note's data.
     public func toDictionary() -> [String: Any] {
         return [
             "title": title,

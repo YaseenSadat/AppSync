@@ -14,17 +14,25 @@ import AppSyncCore
 class FirestoreService: ObservableObject {
     
     // MARK: - Published Properties
-    @Published var notes: [Note] = []      // For storing top-level notes or folder-based notes
-    @Published var folders: [Folder] = []  // For storing folder data
+    
+    /// An array of notes fetched from the top-level notes collection or folder-based notes.
+    @Published var notes: [Note] = []
+    /// An array of folders fetched from the folders collection.
+    @Published var folders: [Folder] = []
 
     // MARK: - Firestore References
+    
+    /// The Firestore database instance.
     private let db = Firestore.firestore()
-    private let collectionName = "notes"       // Name of the top-level notes collection
-    private let foldersCollection = "folders"  // Name of the folders collection
+    /// The name of the top-level notes collection.
+    private let collectionName = "notes"
+    /// The name of the folders collection.
+    private let foldersCollection = "folders"
 
     // MARK: - Top-Level Notes (Optional)
     // These methods let you store notes in a single, global "notes" collection at the top level of Firestore.
 
+    /// Fetches top-level notes from Firestore and listens for real-time updates.
     func fetchNotes() {
         db.collection(collectionName)
             .order(by: "timestamp", descending: false)
@@ -51,6 +59,11 @@ class FirestoreService: ObservableObject {
             }
     }
 
+    /// Adds a new note with the given title and content to the top-level notes collection.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the note.
+    ///   - content: The content of the note.
     func addNote(title: String, content: String) {
         let newNote = Note(id: "", title: title, content: content, timestamp: Date())
         let noteData = newNote.toDictionary()
@@ -62,6 +75,9 @@ class FirestoreService: ObservableObject {
         }
     }
 
+    /// Updates an existing note in the top-level notes collection.
+    ///
+    /// - Parameter note: The note to update.
     func updateNote(note: Note) {
         let noteData = note.toDictionary()
         db.collection(collectionName)
@@ -73,6 +89,9 @@ class FirestoreService: ObservableObject {
             }
     }
 
+    /// Deletes a note from the top-level notes collection.
+    ///
+    /// - Parameter note: The note to delete.
     func deleteNote(note: Note) {
         db.collection(collectionName)
             .document(note.id)
@@ -85,7 +104,9 @@ class FirestoreService: ObservableObject {
 
     // MARK: - User-Specific Folders
 
-    /// Fetch only the folders that belong to a specific user (by UID).
+    /// Fetches folders that belong to a specific user.
+    ///
+    /// - Parameter userID: The UID of the user whose folders should be fetched.
     func fetchFolders(forUser userID: String) {
         db.collection(foldersCollection)
             .whereField("uid", isEqualTo: userID)
@@ -108,7 +129,11 @@ class FirestoreService: ObservableObject {
             }
     }
 
-    /// Add a folder with the given name for a specific user (by UID).
+    /// Adds a new folder with the specified name for a given user.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the new folder.
+    ///   - userID: The UID of the user for whom the folder is being added.
     func addFolder(name: String, forUser userID: String) {
         let folderData: [String: Any] = [
             "uid": userID,
@@ -122,6 +147,9 @@ class FirestoreService: ObservableObject {
         }
     }
 
+    /// Deletes a folder from Firestore.
+    ///
+    /// - Parameter folder: The folder to delete.
     func deleteFolder(folder: Folder) {
         db.collection(foldersCollection)
             .document(folder.id)
@@ -134,6 +162,9 @@ class FirestoreService: ObservableObject {
 
     // MARK: - Folder-Based Notes
 
+    /// Fetches notes from a specific folder and listens for real-time updates.
+    ///
+    /// - Parameter folder: The folder from which to fetch notes.
     func fetchNotes(inFolder folder: Folder) {
         db.collection(foldersCollection)
             .document(folder.id)
@@ -161,6 +192,12 @@ class FirestoreService: ObservableObject {
             }
     }
 
+    /// Adds a new note with the given title and content to a specific folder.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the note.
+    ///   - content: The content of the note.
+    ///   - folder: The folder to which the note should be added.
     func addNote(title: String, content: String, toFolder folder: Folder) {
         let newNote = Note(id: "", title: title, content: content, timestamp: Date())
         let noteData = newNote.toDictionary()
@@ -175,6 +212,11 @@ class FirestoreService: ObservableObject {
             }
     }
 
+    /// Updates an existing note within a specific folder.
+    ///
+    /// - Parameters:
+    ///   - note: The note to update.
+    ///   - folder: The folder in which the note exists.
     func updateNote(_ note: Note, inFolder folder: Folder) {
         let noteData = note.toDictionary()
         db.collection(foldersCollection)
@@ -188,6 +230,11 @@ class FirestoreService: ObservableObject {
             }
     }
 
+    /// Deletes a note from a specific folder.
+    ///
+    /// - Parameters:
+    ///   - note: The note to delete.
+    ///   - folder: The folder from which the note should be deleted.
     func deleteNote(_ note: Note, fromFolder folder: Folder) {
         db.collection(foldersCollection)
             .document(folder.id)

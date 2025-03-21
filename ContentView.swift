@@ -8,18 +8,31 @@
 import SwiftUI
 import AppSyncCore  // New: Import the package to access Note and FirestoreService
 
+/// The main view for displaying and managing notes in the AppSync application.
+///
+/// This view allows users to view a list of existing notes, add new notes, and edit existing ones.
+/// Notes are fetched from a Firestore backend through `FirestoreService`.
 struct ContentView: View {
+    /// An observed instance of FirestoreService that manages fetching, adding, updating, and deleting notes.
     @ObservedObject var firestoreService = FirestoreService()
     
-    // For adding a new note
+    // MARK: - State Properties for Adding a New Note
+    
+    /// The title for a new note entered by the user.
     @State private var newTitle: String = ""
+    /// The content for a new note entered by the user.
     @State private var newContent: String = ""
     
-    // For editing a note
+    // MARK: - State Properties for Editing a Note
+    
+    /// The note currently selected for editing.
     @State private var noteToEdit: Note? = nil
+    /// The updated title when editing a note.
     @State private var editedTitle: String = ""
+    /// The updated content when editing a note.
     @State private var editedContent: String = ""
     
+    /// The content and behavior of the view.
     var body: some View {
         NavigationView {
             VStack {
@@ -84,7 +97,7 @@ struct ContentView: View {
                 .padding(.bottom)
             }
             .navigationTitle("My Notes")
-            // Edit Sheet Presentation
+            // Edit Sheet Presentation for editing a note
             .sheet(item: $noteToEdit) { note in
                 NavigationView {
                     Form {
@@ -117,6 +130,7 @@ struct ContentView: View {
     }
 }
 
+/// Provides a preview of ContentView for SwiftUI's canvas.
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
